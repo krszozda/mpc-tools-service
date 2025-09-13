@@ -23,8 +23,14 @@ logger = logging.getLogger(__name__)
 async def serve():
     """Start the MPC Tools gRPC server"""
     
-    # Import service after logging is configured
+    # Import service and protobuf stubs
     from .service import MPCToolsService
+    try:
+        import mpc_tools_pb2_grpc as pb2_grpc
+        add_MPCToolsServiceServicer_to_server = pb2_grpc.add_MPCToolsServiceServicer_to_server
+    except ImportError:
+        logger.error("Failed to import protobuf stubs. Make sure proto files are compiled.")
+        return
     
     # Create server
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=20))
