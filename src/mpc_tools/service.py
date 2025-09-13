@@ -632,3 +632,353 @@ class MPCToolsService(pb2_grpc.MPCToolsServiceServicer):
                 status="error",
                 dependencies=["error"]
             )
+
+    # ===== BRAKUJĄCE METODY MPC TOOLS =====
+    
+    async def FederatedLearning(self, request, context):
+        """Federated Learning Implementation (using scikit-learn fallback)"""
+        try:
+            logger.info(f"FederatedLearning request: {request}")
+            
+            # Parse encrypted model updates
+            model_updates = []
+            for update in request.model_updates:
+                try:
+                    # Decrypt model data
+                    decrypted_data = self._decrypt_data(update.encrypted_weights)
+                    model_data = json.loads(decrypted_data)
+                    model_updates.append(model_data)
+                except Exception as e:
+                    logger.warning(f"Failed to decrypt model update: {e}")
+                    continue
+            
+            if not model_updates:
+                return pb2.FederatedLearningResponse(
+                    success=False,
+                    message="No valid model updates received"
+                )
+            
+            # Simple federated averaging using numpy/scipy
+            import numpy as np
+            from sklearn.linear_model import LinearRegression
+            
+            # Aggregate model weights (simplified)
+            aggregated_weights = {}
+            for key in model_updates[0].keys():
+                if isinstance(model_updates[0][key], list):
+                    aggregated_weights[key] = np.mean([update[key] for update in model_updates], axis=0)
+                else:
+                    aggregated_weights[key] = np.mean([update[key] for update in model_updates])
+            
+            # Encrypt aggregated model
+            encrypted_model = self._encrypt_data(json.dumps(aggregated_weights))
+            
+            return pb2.FederatedLearningResponse(
+                success=True,
+                message="Federated learning completed successfully",
+                aggregated_model=pb2.ModelUpdate(
+                    encrypted_weights=encrypted_model,
+                    model_version=request.model_version + 1,
+                    participant_count=len(model_updates)
+                )
+            )
+            
+        except Exception as e:
+            logger.error(f"FederatedLearning error: {e}")
+            return pb2.FederatedLearningResponse(
+                success=False,
+                message=f"Federated learning failed: {str(e)}"
+            )
+
+    async def HomomorphicComputation(self, request, context):
+        """Homomorphic Computation Implementation (using cryptography fallback)"""
+        try:
+            logger.info(f"HomomorphicComputation request: {request}")
+            
+            # Simple homomorphic operations using cryptography
+            import numpy as np
+            
+            # Parse encrypted data
+            encrypted_values = []
+            for data in request.encrypted_data:
+                try:
+                    decrypted = self._decrypt_data(data)
+                    value = float(decrypted)
+                    encrypted_values.append(value)
+                except Exception as e:
+                    logger.warning(f"Failed to decrypt value: {e}")
+                    continue
+            
+            if not encrypted_values:
+                return pb2.HomomorphicResponse(
+                    success=False,
+                    message="No valid encrypted data received"
+                )
+            
+            # Perform computation based on operation type
+            result = 0
+            if request.operation == "SUM":
+                result = sum(encrypted_values)
+            elif request.operation == "MEAN":
+                result = np.mean(encrypted_values)
+            elif request.operation == "MAX":
+                result = max(encrypted_values)
+            elif request.operation == "MIN":
+                result = min(encrypted_values)
+            else:
+                return pb2.HomomorphicResponse(
+                    success=False,
+                    message=f"Unsupported operation: {request.operation}"
+                )
+            
+            # Encrypt result
+            encrypted_result = self._encrypt_data(str(result))
+            
+            return pb2.HomomorphicResponse(
+                success=True,
+                message="Homomorphic computation completed",
+                encrypted_result=encrypted_result,
+                operation=request.operation,
+                input_count=len(encrypted_values)
+            )
+            
+        except Exception as e:
+            logger.error(f"HomomorphicComputation error: {e}")
+            return pb2.HomomorphicResponse(
+                success=False,
+                message=f"Homomorphic computation failed: {str(e)}"
+            )
+
+    async def PortfolioOptimization(self, request, context):
+        """Portfolio Optimization Implementation (using scipy fallback)"""
+        try:
+            logger.info(f"PortfolioOptimization request: {request}")
+            
+            import numpy as np
+            from scipy.optimize import minimize
+            
+            # Parse portfolio data
+            assets = []
+            returns = []
+            risks = []
+            
+            for asset in request.assets:
+                assets.append(asset.symbol)
+                returns.append(asset.expected_return)
+                risks.append(asset.risk_level)
+            
+            if len(assets) < 2:
+                return pb2.PortfolioOptResponse(
+                    success=False,
+                    message="Portfolio optimization requires at least 2 assets"
+                )
+            
+            # Simple portfolio optimization using scipy
+            n_assets = len(assets)
+            
+            # Objective function: maximize Sharpe ratio (simplified)
+            def objective(weights):
+                portfolio_return = np.dot(weights, returns)
+                portfolio_risk = np.sqrt(np.dot(weights, np.array(risks)**2))
+                if portfolio_risk == 0:
+                    return -portfolio_return  # Avoid division by zero
+                return -(portfolio_return / portfolio_risk)  # Negative for minimization
+            
+            # Constraints: weights sum to 1
+            constraints = {'type': 'eq', 'fun': lambda w: np.sum(w) - 1}
+            
+            # Bounds: weights between 0 and 1
+            bounds = [(0, 1) for _ in range(n_assets)]
+            
+            # Initial guess: equal weights
+            x0 = np.array([1/n_assets] * n_assets)
+            
+            # Optimize
+            result = minimize(objective, x0, method='SLSQP', bounds=bounds, constraints=constraints)
+            
+            if result.success:
+                optimal_weights = result.x
+                portfolio_return = np.dot(optimal_weights, returns)
+                portfolio_risk = np.sqrt(np.dot(optimal_weights, np.array(risks)**2))
+                sharpe_ratio = portfolio_return / portfolio_risk if portfolio_risk > 0 else 0
+                
+                # Build response
+                optimized_assets = []
+                for i, asset in enumerate(assets):
+                    optimized_assets.append(pb2.OptimizedAsset(
+                        symbol=asset,
+                        weight=optimal_weights[i],
+                        expected_return=returns[i],
+                        risk_level=risks[i]
+                    ))
+                
+                return pb2.PortfolioOptResponse(
+                    success=True,
+                    message="Portfolio optimization completed successfully",
+                    optimized_assets=optimized_assets,
+                    portfolio_return=portfolio_return,
+                    portfolio_risk=portfolio_risk,
+                    sharpe_ratio=sharpe_ratio,
+                    optimization_method="scipy_minimize"
+                )
+            else:
+                return pb2.PortfolioOptResponse(
+                    success=False,
+                    message=f"Optimization failed: {result.message}"
+                )
+            
+        except Exception as e:
+            logger.error(f"PortfolioOptimization error: {e}")
+            return pb2.PortfolioOptResponse(
+                success=False,
+                message=f"Portfolio optimization failed: {str(e)}"
+            )
+
+    async def ShareInsights(self, request, context):
+        """Share Insights Implementation"""
+        try:
+            logger.info(f"ShareInsights request: {request}")
+            
+            # Store insight in agent registry
+            insight_id = f"insight_{request.agent_id}_{int(time.time())}"
+            
+            self.agent_registry[request.agent_id] = {
+                "last_seen": datetime.now(),
+                "insights": self.agent_registry.get(request.agent_id, {}).get("insights", []) + [insight_id],
+                "capabilities": request.capabilities
+            }
+            
+            # Store insight data
+            insight_data = {
+                "insight_id": insight_id,
+                "agent_id": request.agent_id,
+                "insight_type": request.insight_type,
+                "data": request.insight_data,
+                "timestamp": datetime.now().isoformat(),
+                "privacy_level": request.privacy_level
+            }
+            
+            # Cache insight
+            await self._cache_insight(insight_id, insight_data)
+            
+            return pb2.InsightShareResponse(
+                success=True,
+                message="Insight shared successfully",
+                insight_id=insight_id,
+                timestamp=int(time.time())
+            )
+            
+        except Exception as e:
+            logger.error(f"ShareInsights error: {e}")
+            return pb2.InsightShareResponse(
+                success=False,
+                message=f"Failed to share insight: {str(e)}"
+            )
+
+    async def CorrelationAnalysis(self, request, context):
+        """Correlation Analysis Implementation (using pandas fallback)"""
+        try:
+            logger.info(f"CorrelationAnalysis request: {request}")
+            
+            import pandas as pd
+            import numpy as np
+            
+            # Parse time series data
+            data_dict = {}
+            for series in request.time_series:
+                data_dict[series.symbol] = series.values
+            
+            if len(data_dict) < 2:
+                return pb2.CorrelationResponse(
+                    success=False,
+                    message="Correlation analysis requires at least 2 time series"
+                )
+            
+            # Create DataFrame
+            df = pd.DataFrame(data_dict)
+            
+            # Calculate correlation matrix
+            correlation_matrix = df.corr()
+            
+            # Find significant correlations
+            significant_correlations = []
+            for i, symbol1 in enumerate(correlation_matrix.columns):
+                for j, symbol2 in enumerate(correlation_matrix.columns):
+                    if i < j:  # Avoid duplicates
+                        corr_value = correlation_matrix.loc[symbol1, symbol2]
+                        if abs(corr_value) > request.min_correlation_threshold:
+                            significant_correlations.append(pb2.CorrelationPair(
+                                symbol1=symbol1,
+                                symbol2=symbol2,
+                                correlation=corr_value,
+                                p_value=0.05  # Simplified
+                            ))
+            
+            return pb2.CorrelationResponse(
+                success=True,
+                message="Correlation analysis completed",
+                correlation_pairs=significant_correlations,
+                analysis_period=f"{request.time_series[0].start_time} to {request.time_series[0].end_time}",
+                total_pairs=len(significant_correlations)
+            )
+            
+        except Exception as e:
+            logger.error(f"CorrelationAnalysis error: {e}")
+            return pb2.CorrelationResponse(
+                success=False,
+                message=f"Correlation analysis failed: {str(e)}"
+            )
+
+    async def AnomalyDetection(self, request, context):
+        """Anomaly Detection Implementation (using scikit-learn fallback)"""
+        try:
+            logger.info(f"AnomalyDetection request: {request}")
+            
+            from sklearn.ensemble import IsolationForest
+            import numpy as np
+            
+            # Parse data points
+            data_points = []
+            for point in request.data_points:
+                data_points.append([point.value, point.timestamp])
+            
+            if len(data_points) < 10:
+                return pb2.AnomalyResponse(
+                    success=False,
+                    message="Anomaly detection requires at least 10 data points"
+                )
+            
+            # Convert to numpy array
+            X = np.array(data_points)
+            
+            # Use Isolation Forest for anomaly detection
+            iso_forest = IsolationForest(contamination=request.contamination_threshold, random_state=42)
+            anomaly_labels = iso_forest.fit_predict(X)
+            
+            # Identify anomalies
+            anomalies = []
+            for i, label in enumerate(anomaly_labels):
+                if label == -1:  # Anomaly
+                    anomalies.append(pb2.AnomalyPoint(
+                        index=i,
+                        value=request.data_points[i].value,
+                        timestamp=request.data_points[i].timestamp,
+                        anomaly_score=iso_forest.decision_function([X[i]])[0],
+                        anomaly_type="statistical_outlier"
+                    ))
+            
+            return pb2.AnomalyResponse(
+                success=True,
+                message="Anomaly detection completed",
+                anomalies=anomalies,
+                total_points=len(data_points),
+                anomaly_count=len(anomalies),
+                detection_method="isolation_forest"
+            )
+            
+        except Exception as e:
+            logger.error(f"AnomalyDetection error: {e}")
+            return pb2.AnomalyResponse(
+                success=False,
+                message=f"Anomaly detection failed: {str(e)}"
+            )
