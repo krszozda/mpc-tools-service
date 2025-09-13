@@ -25,8 +25,8 @@ import json
 
 # Generated protobuf imports (will be available after proto compilation)
 try:
-    from . import mpc_tools_pb2 as pb2
-    from . import mpc_tools_pb2_grpc as pb2_grpc
+    import mpc_tools_pb2 as pb2
+    import mpc_tools_pb2_grpc as pb2_grpc
 except ImportError:
     # Fallback for development
     pb2 = None
