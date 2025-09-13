@@ -1,0 +1,565 @@
+syntax = "proto3";
+
+package mpc_tools;
+
+// MPC Tools Service - Advanced Multi-Party Computation Tools for AI Agents
+service MPCToolsService {
+  // Secure Multi-Party Computations
+  rpc SecureAggregation(SecureAggregationRequest) returns (SecureAggregationResponse);
+  rpc FederatedLearning(FederatedLearningRequest) returns (FederatedLearningResponse);
+  rpc SecureSum(SecureSumRequest) returns (SecureSumResponse);
+  rpc SecureMean(SecureMeanRequest) returns (SecureMeanResponse);
+  
+  // Privacy-Preserving Operations
+  rpc DifferentialPrivacyQuery(DPQueryRequest) returns (DPQueryResponse);
+  rpc HomomorphicComputation(HomomorphicRequest) returns (HomomorphicResponse);
+  rpc ZeroKnowledgeProof(ZKProofRequest) returns (ZKProofResponse);
+  rpc PrivateSetIntersection(PSIRequest) returns (PSIResponse);
+  
+  // Multi-Agent Coordination
+  rpc CoordinateAgents(CoordinationRequest) returns (CoordinationResponse);
+  rpc ShareInsights(InsightShareRequest) returns (InsightShareResponse);
+  rpc ConsensusProtocol(ConsensusRequest) returns (ConsensusResponse);
+  rpc AgentSynchronization(SyncRequest) returns (SyncResponse);
+  
+  // Advanced Analytics & Risk Modeling
+  rpc AdvancedRiskModeling(RiskModelRequest) returns (RiskModelResponse);
+  rpc PortfolioOptimization(PortfolioOptRequest) returns (PortfolioOptResponse);
+  rpc CorrelationAnalysis(CorrelationRequest) returns (CorrelationResponse);
+  rpc AnomalyDetection(AnomalyRequest) returns (AnomalyResponse);
+  
+  // Real-time Orchestration
+  rpc OrchestrateComputation(OrchestrationRequest) returns (stream ComputationResult);
+  rpc StreamSecureComputation(stream SecureComputationChunk) returns (stream ComputationResult);
+  
+  // Service Management
+  rpc GetServiceStatus(StatusRequest) returns (StatusResponse);
+  rpc HealthCheck(HealthRequest) returns (HealthResponse);
+}
+
+// ============================================================================
+// SECURE MULTI-PARTY COMPUTATIONS
+// ============================================================================
+
+message SecureAggregationRequest {
+  string computation_id = 1;
+  repeated AgentData agent_data = 2;
+  AggregationType aggregation_type = 3;
+  SecurityLevel security_level = 4;
+  map<string, string> parameters = 5;
+}
+
+message SecureAggregationResponse {
+  bool success = 1;
+  string result = 2;
+  string computation_id = 3;
+  double execution_time_ms = 4;
+  repeated string participant_ids = 5;
+  string error_message = 6;
+}
+
+message AgentData {
+  string agent_id = 1;
+  string encrypted_data = 2;
+  string public_key = 3;
+  int64 timestamp = 4;
+  map<string, string> metadata = 5;
+}
+
+message FederatedLearningRequest {
+  string model_id = 1;
+  repeated ModelUpdate updates = 2;
+  LearningConfig config = 3;
+  PrivacyBudget budget = 4;
+}
+
+message FederatedLearningResponse {
+  bool success = 1;
+  string aggregated_model = 2;
+  double accuracy = 3;
+  int32 round_number = 4;
+  string error_message = 5;
+}
+
+message ModelUpdate {
+  string agent_id = 1;
+  string encrypted_weights = 2;
+  double local_accuracy = 3;
+  int32 sample_count = 4;
+  map<string, string> metadata = 5;
+}
+
+message SecureSumRequest {
+  repeated SecureValue values = 1;
+  string computation_id = 2;
+  SecurityLevel security_level = 3;
+}
+
+message SecureSumResponse {
+  bool success = 1;
+  double result = 2;
+  string computation_id = 3;
+  double execution_time_ms = 4;
+}
+
+message SecureMeanRequest {
+  repeated SecureValue values = 1;
+  string computation_id = 2;
+  SecurityLevel security_level = 3;
+}
+
+message SecureMeanResponse {
+  bool success = 1;
+  double result = 2;
+  int32 count = 3;
+  string computation_id = 4;
+}
+
+message SecureValue {
+  string encrypted_value = 1;
+  string agent_id = 2;
+  string commitment = 3;
+}
+
+// ============================================================================
+// PRIVACY-PRESERVING OPERATIONS
+// ============================================================================
+
+message DPQueryRequest {
+  string query_id = 1;
+  string query_type = 2;
+  repeated string data_sources = 3;
+  PrivacyBudget budget = 4;
+  double epsilon = 5;
+  double delta = 6;
+}
+
+message DPQueryResponse {
+  bool success = 1;
+  string result = 2;
+  double privacy_cost = 3;
+  string query_id = 4;
+  string error_message = 5;
+}
+
+message HomomorphicRequest {
+  string computation_id = 1;
+  string operation = 2;
+  repeated string encrypted_inputs = 3;
+  string public_key = 4;
+  map<string, string> parameters = 5;
+}
+
+message HomomorphicResponse {
+  bool success = 1;
+  string encrypted_result = 2;
+  string computation_id = 3;
+  double execution_time_ms = 4;
+}
+
+message ZKProofRequest {
+  string proof_type = 1;
+  string statement = 2;
+  string witness = 3;
+  string challenge = 4;
+  map<string, string> parameters = 5;
+}
+
+message ZKProofResponse {
+  bool success = 1;
+  string proof = 2;
+  bool verified = 3;
+  string error_message = 4;
+}
+
+message PSIRequest {
+  string computation_id = 1;
+  repeated string encrypted_sets = 2;
+  repeated string participant_ids = 3;
+  PSIProtocol protocol = 4;
+}
+
+message PSIResponse {
+  bool success = 1;
+  string intersection_result = 2;
+  int32 intersection_size = 3;
+  string computation_id = 4;
+}
+
+// ============================================================================
+// MULTI-AGENT COORDINATION
+// ============================================================================
+
+message CoordinationRequest {
+  string coordination_id = 1;
+  repeated string agent_ids = 2;
+  CoordinationType type = 3;
+  string task_description = 4;
+  map<string, string> parameters = 5;
+}
+
+message CoordinationResponse {
+  bool success = 1;
+  string coordination_result = 2;
+  repeated AgentStatus agent_statuses = 3;
+  string error_message = 4;
+}
+
+message InsightShareRequest {
+  string insight_id = 1;
+  string source_agent = 2;
+  repeated string target_agents = 3;
+  string insight_data = 4;
+  PrivacyLevel privacy_level = 5;
+}
+
+message InsightShareResponse {
+  bool success = 1;
+  repeated string acknowledged_agents = 2;
+  string share_id = 3;
+  string error_message = 4;
+}
+
+message ConsensusRequest {
+  string consensus_id = 1;
+  repeated string participant_ids = 2;
+  string proposal = 3;
+  ConsensusAlgorithm algorithm = 4;
+  int32 timeout_seconds = 5;
+}
+
+message ConsensusResponse {
+  bool success = 1;
+  bool consensus_reached = 2;
+  string final_value = 3;
+  int32 agreement_count = 4;
+  string error_message = 5;
+}
+
+message SyncRequest {
+  string sync_id = 1;
+  repeated string agent_ids = 2;
+  SyncType sync_type = 3;
+  string sync_data = 4;
+}
+
+message SyncResponse {
+  bool success = 1;
+  repeated AgentSyncStatus sync_statuses = 2;
+  string error_message = 3;
+}
+
+// ============================================================================
+// ADVANCED ANALYTICS & RISK MODELING
+// ============================================================================
+
+message RiskModelRequest {
+  string model_id = 1;
+  repeated string asset_ids = 2;
+  RiskModelType model_type = 3;
+  repeated RiskFactor factors = 4;
+  map<string, string> parameters = 5;
+}
+
+message RiskModelResponse {
+  bool success = 1;
+  RiskMetrics metrics = 2;
+  repeated RiskScenario scenarios = 3;
+  string model_id = 4;
+  string error_message = 5;
+}
+
+message PortfolioOptRequest {
+  string optimization_id = 1;
+  repeated Asset assets = 2;
+  OptimizationObjective objective = 3;
+  repeated Constraint constraints = 4;
+  map<string, string> parameters = 5;
+}
+
+message PortfolioOptResponse {
+  bool success = 1;
+  repeated AssetWeight optimal_weights = 2;
+  double expected_return = 3;
+  double risk_level = 4;
+  string optimization_id = 5;
+}
+
+message CorrelationRequest {
+  string analysis_id = 1;
+  repeated string asset_pairs = 2;
+  CorrelationMethod method = 3;
+  int32 lookback_periods = 4;
+}
+
+message CorrelationResponse {
+  bool success = 1;
+  repeated CorrelationPair correlations = 2;
+  string analysis_id = 3;
+  string error_message = 4;
+}
+
+message AnomalyRequest {
+  string detection_id = 1;
+  repeated DataPoint data_points = 2;
+  AnomalyAlgorithm algorithm = 3;
+  double threshold = 4;
+}
+
+message AnomalyResponse {
+  bool success = 1;
+  repeated AnomalyPoint anomalies = 2;
+  double anomaly_score = 3;
+  string detection_id = 4;
+}
+
+// ============================================================================
+// REAL-TIME ORCHESTRATION
+// ============================================================================
+
+message OrchestrationRequest {
+  string orchestration_id = 1;
+  repeated ComputationTask tasks = 2;
+  OrchestrationStrategy strategy = 3;
+  int32 max_parallel_tasks = 4;
+}
+
+message ComputationResult {
+  string task_id = 1;
+  bool success = 2;
+  string result = 3;
+  double execution_time_ms = 4;
+  string error_message = 5;
+  int64 timestamp = 6;
+}
+
+message SecureComputationChunk {
+  string computation_id = 1;
+  int32 chunk_index = 2;
+  int32 total_chunks = 3;
+  string encrypted_data = 4;
+  bool is_final_chunk = 5;
+}
+
+// ============================================================================
+// SERVICE MANAGEMENT
+// ============================================================================
+
+message StatusRequest {
+  string service_name = 1;
+}
+
+message StatusResponse {
+  bool healthy = 1;
+  string status = 2;
+  map<string, string> metrics = 3;
+  int64 uptime_seconds = 4;
+}
+
+message HealthRequest {
+  string check_type = 1;
+}
+
+message HealthResponse {
+  bool healthy = 1;
+  string status = 2;
+  repeated string dependencies = 3;
+}
+
+// ============================================================================
+// ENUMS AND TYPES
+// ============================================================================
+
+enum AggregationType {
+  SUM = 0;
+  MEAN = 1;
+  MEDIAN = 2;
+  MAX = 3;
+  MIN = 4;
+  COUNT = 5;
+  VARIANCE = 6;
+  STANDARD_DEVIATION = 7;
+}
+
+enum SecurityLevel {
+  LOW = 0;
+  MEDIUM = 1;
+  HIGH = 2;
+  MAXIMUM = 3;
+}
+
+enum CoordinationType {
+  TASK_DISTRIBUTION = 0;
+  RESOURCE_SHARING = 1;
+  DECISION_MAKING = 2;
+  SYNCHRONIZATION = 3;
+}
+
+enum PrivacyLevel {
+  PUBLIC = 0;
+  INTERNAL = 1;
+  CONFIDENTIAL = 2;
+  SECRET = 3;
+}
+
+enum ConsensusAlgorithm {
+  RAFT = 0;
+  PBFT = 1;
+  POA = 2;
+  DPOS = 3;
+}
+
+enum SyncType {
+  STATE_SYNC = 0;
+  DATA_SYNC = 1;
+  MODEL_SYNC = 2;
+  CONFIG_SYNC = 3;
+}
+
+enum RiskModelType {
+  VAR = 0;
+  CVAR = 1;
+  MONTE_CARLO = 2;
+  HISTORICAL_SIMULATION = 3;
+  PARAMETRIC = 4;
+}
+
+enum OptimizationObjective {
+  MAXIMIZE_RETURN = 0;
+  MINIMIZE_RISK = 1;
+  MAXIMIZE_SHARPE = 2;
+  MINIMIZE_VAR = 3;
+}
+
+enum CorrelationMethod {
+  PEARSON = 0;
+  SPEARMAN = 1;
+  KENDALL = 2;
+  ROLLING = 3;
+}
+
+enum AnomalyAlgorithm {
+  ISOLATION_FOREST = 0;
+  ONE_CLASS_SVM = 1;
+  LOCAL_OUTLIER_FACTOR = 2;
+  STATISTICAL_THRESHOLD = 3;
+}
+
+enum OrchestrationStrategy {
+  SEQUENTIAL = 0;
+  PARALLEL = 1;
+  PIPELINE = 2;
+  ADAPTIVE = 3;
+}
+
+enum PSIProtocol {
+  DH_PSI = 0;
+  ECDH_PSI = 1;
+  OPRF_PSI = 2;
+}
+
+// ============================================================================
+// COMPLEX TYPES
+// ============================================================================
+
+message LearningConfig {
+  double learning_rate = 1;
+  int32 batch_size = 2;
+  int32 epochs = 3;
+  string optimizer = 4;
+  map<string, string> hyperparameters = 5;
+}
+
+message PrivacyBudget {
+  double epsilon = 1;
+  double delta = 2;
+  double remaining_epsilon = 3;
+  double remaining_delta = 4;
+}
+
+message AgentStatus {
+  string agent_id = 1;
+  string status = 2;
+  double cpu_usage = 3;
+  double memory_usage = 4;
+  int64 last_seen = 5;
+}
+
+message AgentSyncStatus {
+  string agent_id = 1;
+  bool synced = 2;
+  string sync_version = 3;
+  int64 last_sync = 4;
+}
+
+message RiskFactor {
+  string factor_name = 1;
+  double weight = 2;
+  double value = 3;
+  string source = 4;
+}
+
+message RiskMetrics {
+  double var_95 = 1;
+  double var_99 = 2;
+  double cvar_95 = 3;
+  double cvar_99 = 4;
+  double expected_shortfall = 5;
+  double max_drawdown = 6;
+}
+
+message RiskScenario {
+  string scenario_name = 1;
+  double probability = 2;
+  double impact = 3;
+  string description = 4;
+}
+
+message Asset {
+  string asset_id = 1;
+  string symbol = 2;
+  double current_price = 3;
+  double volatility = 4;
+  double expected_return = 5;
+}
+
+message Constraint {
+  string constraint_type = 1;
+  double min_value = 2;
+  double max_value = 3;
+  string description = 4;
+}
+
+message AssetWeight {
+  string asset_id = 1;
+  double weight = 2;
+  double allocation = 3;
+}
+
+message CorrelationPair {
+  string asset1 = 1;
+  string asset2 = 2;
+  double correlation = 3;
+  double p_value = 4;
+}
+
+message DataPoint {
+  int64 timestamp = 1;
+  double value = 2;
+  map<string, string> metadata = 3;
+}
+
+message AnomalyPoint {
+  int64 timestamp = 1;
+  double value = 2;
+  double anomaly_score = 3;
+  string reason = 4;
+}
+
+message ComputationTask {
+  string task_id = 1;
+  string task_type = 2;
+  string input_data = 3;
+  map<string, string> parameters = 4;
+  int32 priority = 5;
+}
